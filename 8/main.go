@@ -1,8 +1,19 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
-func SetBit(num int64, i int, bVal int) int64 {
+func SetBit(num int64, i int, bVal int) (int64, error) {
+    if i >= 64 {
+        return 0, errors.New("Invalid bit index, out of range [0..64]")
+    }
+
+    if i == 63 && bVal == 1 {
+        return 0, errors.New("Integer overflow")
+    }
+
 	var bitMask int64 = 1 << i
 
 	if bVal == 0 {
@@ -14,7 +25,7 @@ func SetBit(num int64, i int, bVal int) int64 {
 		num |= bitMask
 	}
 
-	return num
+	return num, nil
 }
 
 func main() {
@@ -31,7 +42,16 @@ func main() {
 	fmt.Printf("bit value: ")
 	fmt.Scan(&bVal)
 
-	num = SetBit(num, i, bVal)
+    if bVal < 0 || bVal > 1 {
+        fmt.Printf("Error: bVal required be in [0, 1]\n")
+        return
+    }
+
+    num, err := SetBit(num, i, bVal)
+    if err != nil {
+        fmt.Printf("Error: %s\n", err)
+        return
+    }
 
 	fmt.Printf("val: %d, bits: %b\n", num, num)
 }
